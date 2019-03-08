@@ -355,14 +355,15 @@ let validateDateInsert = async (tableName,data)=>{
     
     let metaData = await getColumnsAndMetadata(tableName);
     // console.log({metaData});
+    // console.log({data});
     
     for (const key in data) {
-        let tableAttribute = metaData.filter(resp => resp.key === key);
+        let tableAttribute = metaData.filter(resp => resp.value === key);
         // verificar si 
         if(tableAttribute.length > 0){
             tableAttribute = tableAttribute[0];
             // console.log({tableAttribute:tableAttribute.DATA_TYPE});   
-            console.log({tableAttribute});
+            // console.log({tableAttribute});
                      
             if(typeof data[key] === catchType(tableAttribute.type)){
                 if(tableAttribute.type.toUpperCase() === "VARCHAR2"){

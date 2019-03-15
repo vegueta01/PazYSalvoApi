@@ -30,17 +30,17 @@ let getColumns =(rows)=>{
         if(typeof rows[0] === 'object'){
             for (const key in rows[0]) {
                 let column ={};
-                column.label = capitalizeFirstLetter(key.toLowerCase());
-                column.field = key.toLowerCase();
-                column.key = key;
+                column.text = capitalizeFirstLetter(key.toLowerCase());
+                // column.field = key.toLowerCase();
+                column.value = key;
                 columns.push(column);
             }
         }      
     }else if(typeof rows === 'object'){
         for (const key in rows) {
             let column ={};
-            column.label = capitalizeFirstLetter(key);
-            column.field = key.toLowerCase();
+            column.text = capitalizeFirstLetter(key);
+            column.value = key.toLowerCase(); //TODO:creo que acá de toUpperCase
             columns.push(column);
         }
     }
@@ -114,12 +114,15 @@ exports.getList = async (tablename,query) =>{
     try {
         console.log({tablename,query});
         
-        let columns = await getColumnsAndMetadata(tablename)
+        let columns = await getColumnsAndMetadata(tablename);
         let sql = await generateSql(tablename,columns,query);
         // let [sql,columns] = await Promise.all([generateSql(tablename),getColumnsAndMetadata(tablename)])
         // let columns = await getColumnsAndMetadata(tablename); //TODO: ponerlo en un promise all
+
         
         let result = await executeSql(sql.sqlList);  
+
+        // let [columns,result] = await Promise.all([getColumnsAndMetadata(tablename),executeSql(sql.sqlList)]);
         let [rows,count] = await Promise.all([catchConsultToJSON(result),countSql(sql.sqlCount)]);
         
         // let resultJSON = catchConsultToJSON(result);
@@ -275,7 +278,9 @@ let generateSql =(tableName,columns,query ={})=>{
 let whereList=(columns,query)=>{
     let whereStr = '';
     for (const key in query) {
-        let index = columns.findIndex(col=> col.key.toUpperCase() === key.toUpperCase());
+        console.log({columns});
+        
+        let index = columns.findIndex(col=> col.value.toUpperCase() === key.toUpperCase());
         if(index !== -1){
             //TODO: validar que los datos que lleguen sean del tipo de dato correcto
             // ejemplo   typeOf query[key] === columns[index].type         
@@ -321,6 +326,7 @@ exports.getById = async (tableName,id) =>{
     try {
         let sql = generateSqlById(tableName,id);       
         let result = await executeSql(sql.sqlList);  
+        // let columns = await getColumnsAndMetadata(tableName);
         let [rows,count] = await Promise.all([catchConsultToJSON(result),countSql(sql.sqlCount)]);
         let columns = getColumns(rows);
         // data = await catchDateToUnixTime(data);

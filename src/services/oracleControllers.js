@@ -56,11 +56,12 @@ let getColumns =(rows)=>{
 let getColumnsAndMetadata =async (tablename)=>{
     let select =
     `SELECT 
-        user_tab_columns.table_name,user_tab_columns.DATA_TYPE,user_tab_columns.COLUMN_NAME,user_tab_columns.NULLABLE
+        COLUMN_ID,user_tab_columns.table_name,user_tab_columns.DATA_TYPE,user_tab_columns.COLUMN_NAME,user_tab_columns.NULLABLE
     FROM 
         user_tab_columns
     where 
-        user_tab_columns.table_name = '${tablename}'`
+        user_tab_columns.table_name = '${tablename}'
+        ORDER BY COLUMN_ID`
    
 
     let columnsAndMetadata = await executeSql(select);  
@@ -108,6 +109,7 @@ exports.getConsult = async (sql) =>{
 /**
  * extrae todos los datos de una tabla y los envía en formato JSON
  * @param {string} tablename nombre de la tabla
+ * @param {JSON} query son los filtros que se le quieren hacer a la consulta select * from ${tablename}
  * @returns {data,count} data = JSON (datos) , count = int contidad de registros
  */
 exports.getList = async (tablename,query) =>{
@@ -116,6 +118,35 @@ exports.getList = async (tablename,query) =>{
         
         let columns = await getColumnsAndMetadata(tablename);
         let sql = await generateSql(tablename,columns,query);
+        // let [sql,columns] = await Promise.all([generateSql(tablename),getColumnsAndMetadata(tablename)])
+        // let columns = await getColumnsAndMetadata(tablename); //TODO: ponerlo en un promise all
+
+        
+        let result = await executeSql(sql.sqlList);  
+
+        // let [columns,result] = await Promise.all([getColumnsAndMetadata(tablename),executeSql(sql.sqlList)]);
+        let [rows,count] = await Promise.all([catchConsultToJSON(result),countSql(sql.sqlCount)]);
+        
+        // let resultJSON = catchConsultToJSON(result);
+       
+        return ({columns,rows,count});
+    } catch (error) {
+        throw error
+    }
+}
+
+/**
+ * extrae todos los datos de una tabla y los envía en formato JSON
+ * @param {string} tablename nombre de la tabla
+ * @param {JSON} sql {sqlList,sqlCount} and   consulta sql que se de desea ejecutar (AtENIÓn por ahora solo se deben extraer los datos de una sola tabla y enviar el nombre de esa tabla select tableName.* from tablename where consulta ...)
+ * @returns {data,count} data = JSON (datos) , count = int contidad de registros
+ */
+exports.getListBySql = async (tablename,sql) =>{
+    try {
+        console.log({tablename,sql});
+        
+        let columns = await getColumnsAndMetadata(tablename);
+        // let sql = await generateSql(tablename,columns,query);
         // let [sql,columns] = await Promise.all([generateSql(tablename),getColumnsAndMetadata(tablename)])
         // let columns = await getColumnsAndMetadata(tablename); //TODO: ponerlo en un promise all
 

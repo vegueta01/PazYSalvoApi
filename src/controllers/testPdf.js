@@ -6,7 +6,10 @@ exports.genPdfPipe = async (req, res, next)=>{
         var requestify = require('requestify');
         // var html = fs.readFileSync('http://localhost:3000', 'utf8');
          
-        var options = { format: 'Letter' };
+        var options = {
+            format: 'Letter',
+            // border: "10"
+        };
         
         let html = await requestify.get('http://localhost:3000');
 
@@ -16,7 +19,7 @@ exports.genPdfPipe = async (req, res, next)=>{
         // res.send(resp);
         // });
 
-        pdf.create(html.body).toStream(function(err, stream){
+        pdf.create(html.body,options).toStream(function(err, stream){
             if (err){ res.status(500).send({error:err.message}); return console.log(err);}
             stream.pipe(res);
           });

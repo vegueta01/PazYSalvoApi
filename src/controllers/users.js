@@ -103,17 +103,17 @@ where t.table_name in ('USUARIOS')`
         }
 }
 
-exports.prueba2 = async (req, res, next)=>{
+// exports.prueba2 = async (req, res, next)=>{
    
-        try {
-            let date1 = new Date().toLocaleString()
-            let date2 = require('moment')(new Date().getTime()).utc().unix()
-            let date3 = require('moment').utc(new Date().getTime()).format('DD-MMM-YYYY hh:mm:ss');
+//         try {
+//             let date1 = new Date().toLocaleString()
+//             let date2 = require('moment')(new Date().getTime()).utc().unix()
+//             let date3 = require('moment').utc(new Date().getTime()).format('DD-MMM-YYYY hh:mm:ss');
             
-            res.send({date1,date2,date3});
-        } catch (error) {
-            console.log(error);        
-            res.status(500).send({error:error.message});
-        }
-}
+//             res.send({date1,date2,date3});
+//         } catch (error) {
+//             console.log(error);        
+//             res.status(500).send({error:error.message});
+//         }
+// }
 

@@ -1,6 +1,6 @@
 let oracledb = require('oracledb');
 oracledb.autoCommit = true;
-var dbConfig = require('../config');
+let dbConfig = require('../config');
 
 let conectar =()=>{
     return new Promise((resolve,reject)=>{
